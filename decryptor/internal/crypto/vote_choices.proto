@@ -1,0 +1,7 @@
+syntax = "proto3";
+option go_package = "decryptor/internal/crypto";
+
+
+message Choices {
+  repeated uint32 data = 1;
+}

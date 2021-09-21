@@ -1,0 +1,9 @@
+{
+  "voting_id": "ea067e1ad71565daff55627e4b35340620d53d644820478ee798e125efe657c2",
+  "district_id": 210,
+  "encrypted_choice": {
+    "encrypted_message": "e7bb71822a92d591ca58532b274726c50bcba5ee22161c3d3d",
+    "nonce": "0f1e0f0116a5ab4cf8ba01446edef9718ef6d7bd8f71537a",
+    "public_key": "1670df937af8268ce5786e2a2bc4f1080a2f56a1b85727fd34dbf527a7ffab10"
+  }
+}
