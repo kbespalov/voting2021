@@ -111,6 +111,34 @@ go build -o ./vote-cli  decryptor/cmd/main.go
 ./vote-cli {privateKey} transactions.csv
 ```
 
+```json
+./vote-cli 54e3cf70f712b2ff727bde3849772fa811a9d5de796aa7d788d205aa86af04ad examples/votes_2021_truncated.csv
+
+File:  examples/votes_2021_truncated.csv
+Key:  54e3cf70f712b2ff727bde3849772fa811a9d5de796aa7d788d205aa86af04ad
+Output: out.json
+        
+2021/09/21 19:38:38 Processed 100 transactions
+Candidate ID: 182884641, Votes: 4
+Candidate ID: 182247230, Votes: 4
+Candidate ID: 149646701, Votes: 1
+Candidate ID: 191715167, Votes: 1
+Candidate ID: 191070849, Votes: 7
+Candidate ID: 193509934, Votes: 4
+Candidate ID: 121115662, Votes: 2
+Candidate ID: 114042076, Votes: 1
+Candidate ID: 221857832, Votes: 1
+Candidate ID: 216438542, Votes: 5
+Candidate ID: 204289983, Votes: 1
+Candidate ID: 162832179, Votes: 5
+Candidate ID: 217404809, Votes: 1
+Candidate ID: 112984909, Votes: 1
+Candidate ID: 153469885, Votes: 1
+Candidate ID: 136749451, Votes: 1
+Candidate ID: 111906259, Votes: 8
+Candidate ID: 115873463, Votes: 11
+```
+
 **CLI Output**:
 
 ```json
