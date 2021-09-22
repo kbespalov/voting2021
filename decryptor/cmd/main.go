@@ -25,7 +25,8 @@ func main() {
 
 	println("File: ", pathToFile)
 	println("Key: ", privateKey)
-	println("Output: out.json")
+	println("Output: out_aggregated.json")
+	println("Output: out_full.json")
 
 	processor := processor.NewProcessor(privateKey)
 	input.ProcessVotesCsvFile(pathToFile, processor)
@@ -37,6 +38,9 @@ func main() {
 		result = append(result, output.VotingResult{CandidateId: candidateId, VotesCount: len(transactions)})
 	}
 
-	file, _ := json.MarshalIndent(result, "", " ")
-	_ = ioutil.WriteFile("out.json", file, 0644)
+	file_tiny, _ := json.MarshalIndent(result, "", " ")
+	_ = ioutil.WriteFile("out_tiny.json", file_tiny, 0644)
+
+	file_full, _ := json.MarshalIndent(votes, "", " ")
+	_ = ioutil.WriteFile("out_full.json", file_full, 0644)
 }
