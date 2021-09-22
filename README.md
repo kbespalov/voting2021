@@ -1,11 +1,14 @@
-**About**
+## About
 
-Небольшая CLI для самостоятельного пересчета голосов ДЭГ.
+Небольшая CLI для самостоятельного пересчета голосов ДЭГ по выгрузкам сайта https://observer.mos.ru/all/. 
+В ней нет реализации проверки целостости самого блокчейна и цифровой подписи голосов. Только их расшифровка.
 
-**Как это работает**
+Пример такой расшифровки голосования по одномандатным округам можно найти: [здесь](2021_result_full.csv.zip)
 
-На сайте https://observer.mos.ru/all/ доступна выгрузка (pg_dump) всех транзакций голосования. Ее можно скачать и
-загрузить через обыкновенный `psql` в свою базу PosgreSQL (потребуется около 20 GB места).
+### Как это работает
+
+На сайте https://observer.mos.ru/all/ доступна выгрузка (pg_dump) всех транзакций голосования. 
+Ее можно скачать и загрузить через обыкновенный `psql` в свою базу PosgreSQL (потребуется около 20 GB места).
 
 В выгрузке есть две основные таблицы:
 
@@ -25,14 +28,13 @@
 - `1` - Регистрация избирателей
 - `0` - **Регистрация кандидатов**
 
-Для "домашнего" пересчета достаточно - 0, 6, 8.
+Для "домашнего" пересчета достаточно рассмотреть транзакции - `0, 6, 8`.
 
-В нулевой транзакции хранится перечень кандидатов (их идентификаторы) и имена.
+### Перечень кандидатов 
+В нулевой транзакции хранится перечень кандидатов (их идентификаторы) - имена и номер округа.
 
 ```sql
-SELECT hash, payload
-FROM transactions
-WHERE method_id = 0
+SELECT hash, payload FROM transactions WHERE method_id = 0
 ```
 
 ```json
@@ -49,12 +51,12 @@ WHERE method_id = 0
 ]
 ```
 
+### Приём бюллетеня
+
 В транзациях `6` хранится зашифрованный выбор избирателя `encrypted_message` (идентификатор выбранного кандидата).
 
 ```sql
-SELECT hash, payload
-FROM transactions
-WHERE method_id = 6
+SELECT hash, payload FROM transactions WHERE method_id = 6
 ```
 
 ```json
@@ -68,8 +70,14 @@ WHERE method_id = 6
   }
 }
 ```
+### Публикация ключа
 
 Мастер ключ для расшифровки публикуется в конце голосования в транзакции `8`.
+
+
+```sql
+SELECT hash, payload FROM transactions WHERE method_id = 8
+```
 
 ```json
 {
@@ -82,12 +90,10 @@ WHERE method_id = 6
 Чтобы локально пересчитать голоса достаточно выгрузить все транзакции (`method_id=6`) в csv и запустить утилиту.
 
 ```sql
-SELECT hash, payload
-FROM transactions
-WHERE method_id = 6 > transactions.csv
+SELECT hash, payload FROM transactions WHERE method_id = 6 > transactions.csv
 ```
 
-**CLI Installation**
+## CLI Installation
 
 ```shell
 cd voting2021
@@ -96,7 +102,7 @@ protoc --go_out=. decryptor/internal/crypto/*.proto
 go build -o ./vote-cli  decryptor/cmd/main.go
 ```
 
-**CLI Usage:**
+### CLI Usage
 
 ```
 Формат  transactions.csv
@@ -139,7 +145,7 @@ Candidate ID: 111906259, Votes: 8
 Candidate ID: 115873463, Votes: 11
 ```
 
-**CLI Output**:
+### CLI Output:
 
 ```json
 [
@@ -163,7 +169,7 @@ Candidate ID: 115873463, Votes: 11
 ```
 
 
-**Известные проблемы**
+### Известные проблемы
 
 Не удается расшифровать следующую транзакцию ни моей утилитой, ни публичными инстурментами:
 https://observer.mos.ru/all/servers/1/txs
