@@ -1,19 +1,22 @@
 package main
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"strconv"
+	"voting2021/decryptor/internal"
 	"voting2021/decryptor/internal/input"
 	"voting2021/decryptor/internal/output"
 	"voting2021/decryptor/internal/processor"
 )
 
-// cmd {token} {path_to_csv}
-
 func main() {
 
+	// cmd {token} {path_to_csv}
 	privateKey := os.Args[1]
 	pathToFile := os.Args[2]
 
@@ -27,20 +30,55 @@ func main() {
 	println("Key: ", privateKey)
 	println("Output: out_aggregated.json")
 	println("Output: out_full.json")
+	println("Output: out_full.csv")
 
 	processor := processor.NewProcessor(privateKey)
 	input.ProcessVotesCsvFile(pathToFile, processor)
-	votes := processor.GetVotes()
 
+	votes := processor.GetVotes()
 	result := make([]output.VotingResult, 0)
+
 	for candidateId, transactions := range votes {
 		fmt.Printf("Candidate ID: %d, Votes: %d\n", candidateId, len(transactions))
 		result = append(result, output.VotingResult{CandidateId: candidateId, VotesCount: len(transactions)})
 	}
 
-	file_tiny, _ := json.MarshalIndent(result, "", " ")
-	_ = ioutil.WriteFile("out_tiny.json", file_tiny, 0644)
+	writeJsonAggregatedOutput(&result)
+	writeJsonFullOutput(&votes)
+	writeCsvFullOutput(&votes)
+}
 
-	file_full, _ := json.MarshalIndent(votes, "", " ")
-	_ = ioutil.WriteFile("out_full.json", file_full, 0644)
+func writeJsonAggregatedOutput(result *[]output.VotingResult) {
+	fileName := "out_tiny.json"
+
+	file, _ := json.MarshalIndent(result, "", " ")
+	_ = ioutil.WriteFile(fileName, file, 0644)
+}
+
+func writeJsonFullOutput(result *map[uint32][]*internal.VoteTransaction) {
+	fileName := "out_full.json"
+
+	file, _ := json.MarshalIndent(result, "", " ")
+	_ = ioutil.WriteFile(fileName, file, 0644)
+}
+
+func writeCsvFullOutput(result *map[uint32][]*internal.VoteTransaction) {
+	fileName := "out_full.csv"
+
+	file, _ := os.Create(fileName)
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	for candidateId, transactions := range *result {
+		for _, transaction := range transactions {
+			err := writer.Write([]string{
+				strconv.Itoa(int(candidateId)),
+				transaction.Hash,
+				strconv.Itoa(transaction.Payload.DistrictId)})
+			if err != nil {
+				log.Fatalf("Failed to write into file %s", fileName)
+				return
+			}
+		}
+	}
 }
