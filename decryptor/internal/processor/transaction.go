@@ -24,13 +24,18 @@ func (receiver *processor) GetVotes() map[uint32][]*internal.VoteTransaction {
 func (receiver *processor) ExtractChoices(transaction *internal.VoteTransaction) ([]uint32, error) {
 	choices, err := crypto.DecryptVoteMessage(transaction.Payload.EncryptedChoice, receiver.privateKey)
 	if err != nil {
-		log.Fatalf("Failed to decrypt transaction with id %s", transaction.Hash)
-		return nil, err
+		log.Printf("Failed to decrypt transaction with id %s", transaction.Hash)
+		return nil, nil
 	}
 	receiver.processedCount = receiver.processedCount + 1
-	if receiver.processedCount%100 == 0 {
+	if receiver.processedCount%10000 == 0 {
 		log.Printf("Processed %d transactions", receiver.processedCount)
 	}
+
+	if len(choices) > 1 {
+		log.Printf("Found multiple choices in transaction %s", transaction.Hash)
+	}
+
 	for _, candidateId := range choices {
 
 		if candidateVotes, ok := receiver.votes[candidateId]; ok {
