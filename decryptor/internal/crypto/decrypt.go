@@ -29,8 +29,18 @@ func DecryptVoteMessage(encryptedChoice *internal.EncryptedChoice, privateKey st
 		return nil, errors.New("unable to decrypt: invalid keys or message: ")
 	}
 
+
+	// NOTE: https://github.com/kbespalov/voting2021/issues/1
+	var bytesShift uint32
+	switch decrypted[1] {
+	case 1:
+		bytesShift = 3
+	case 3:
+		bytesShift = 5
+	}
+
 	choices := &Choices{}
-	if err := proto.Unmarshal(decrypted[3:], choices); err != nil {
+	if err := proto.Unmarshal(decrypted[bytesShift:], choices); err != nil {
 		log.Fatalln("Failed to parse Choices proto", err)
 		return nil, err
 	}
